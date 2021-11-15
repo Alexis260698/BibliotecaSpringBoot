@@ -1,20 +1,20 @@
 package com.example.examen.examen.controller;
 
 
-import com.example.examen.examen.Exceptions.ClienteExistenteException;
-import com.example.examen.examen.Exceptions.ClienteInexistenteException;
-import com.example.examen.examen.Exceptions.ClienteVacioException;
-import com.example.examen.examen.entity.Cliente;
+import com.example.examen.examen.Exceptions.GeneralsExceptions.ErrorException;
+import com.example.examen.examen.Exceptions.GeneralsExceptions.ExcesoDePrestamos;
+import com.example.examen.examen.Exceptions.GeneralsExceptions.cantCreateExaption;
 import com.example.examen.examen.repository.ClienteRepository;
+import com.example.examen.examen.repository.PrestamoRepository;
 import com.example.examen.examen.repository.SistemaRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/Sistema")
 public class SistemaController {
 
     @Autowired
@@ -23,78 +23,42 @@ public class SistemaController {
     @Autowired
     private ClienteRepository clienteRepository;
 
+    @Autowired
+    private ItemController itemRepository;
 
-    @GetMapping("/buscarCliente/{dni}")
-    public ResponseEntity<Cliente> buscarCliente(@PathVariable("dni") String dni) throws ClienteInexistenteException {
-        Optional<Cliente> optionalCliente = sistemaRepository.buscarCliente(dni);
+    @Autowired
+    private PrestamoRepository prestamoRepository;
 
-        if(optionalCliente.isEmpty()){
-            throw new ClienteInexistenteException();
-        }
-        return ResponseEntity.ok(optionalCliente.get());
+    @Value("${my.enviroment}")
+    private String enviroment;
+
+    @Value("${bliblioteca.name}")
+    private String nombre;
+
+    @Value("${biblioteca.direccion}")
+    private String direccion;
+
+    @GetMapping("/getEnviroment")
+    public String enviroment(){
+        return enviroment;
     }
 
-    @PostMapping("/nuevoCliente")
-    public void addProduct(@RequestBody Cliente cliente) throws ClienteVacioException, ClienteExistenteException {
-        boolean existeCliente=true;
-
-        if(clienteConCamposVacios(cliente)){
-            throw new ClienteVacioException();
-        }else{
-
-            try {
-                buscarCliente(cliente.getDni());
-            }catch(ClienteInexistenteException e){
-                existeCliente=false;
-            }
-
-            if(!existeCliente){
-                sistemaRepository.addCliente(cliente);
-            }else{
-                throw new ClienteExistenteException();
-            }
-        }
+    @GetMapping("/getDatos")
+    public String getDatos(){
+        return nombre+", "+ direccion;
     }
 
-    @DeleteMapping("/eliminarCliente/{dni}")
-    public void eliminarCliente(@PathVariable("dni") String dni) throws ClienteInexistenteException {
-        Optional<Cliente> optionalCliente= sistemaRepository.buscarCliente(dni);
-        if(optionalCliente.isPresent()){
-            optionalCliente.ifPresent(value -> sistemaRepository.getListaClientes().remove(value));
-        }else{
-            throw new ClienteInexistenteException();
-        }
-
-    }
-
-    @PutMapping("/actualizarCliente")
-    public void actualizarCliente(@RequestBody Cliente cliente) throws ClienteInexistenteException {
-        Optional<Cliente> optionalCliente= sistemaRepository.buscarCliente(cliente.getDni());
-        if(optionalCliente.isPresent()){
-            for(Cliente c: sistemaRepository.getListaClientes()){
-                if(c.getDni().equals(cliente.getDni())){
-                    c.setDni(cliente.getDni());
-                    c.setNombre(cliente.getNombre());
-                    c.setDomicilio(cliente.getDomicilio());
-                }
-
-            }
-        }else{
-            throw new ClienteInexistenteException();
+    @PostMapping("/agregarPrestamo")
+    public void crearPrestamo(@RequestParam(name="dni") Integer dni, @RequestParam(name="codigo") Integer codigo) throws cantCreateExaption {
+        try {
+                prestamoRepository.crearPrestamo(dni, codigo);
+        }catch (cantCreateExaption | ExcesoDePrestamos e){
+            throw new cantCreateExaption();
         }
 
 
     }
 
 
-     public boolean clienteConCamposVacios(Cliente cliente){
-        if(cliente.getDni().equals("") || cliente.getDni().isEmpty() ||
-                cliente.getNombre().equals("") || cliente.getNombre().isEmpty() ||
-                cliente.getDomicilio().equals("") || cliente.getDomicilio().isEmpty() ){
-            return true;
-        }else{
-            return false;
-        }
-     }
 
 }

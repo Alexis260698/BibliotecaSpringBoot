@@ -10,10 +10,10 @@ import java.util.Date;
 public class Prestamo {
     private LocalDate fecha;
     private ItemPrestamo item;
-    private Date fechaDevolucion;
+    private String fechaDevolucion;
     private String estado;
 
-    public Prestamo(LocalDate fecha, ItemPrestamo item, Date fechaDevolucion, String estado) {
+    public Prestamo(LocalDate fecha, ItemPrestamo item, String fechaDevolucion, String estado) {
         this.fecha = fecha;
         this.item = item;
         this.fechaDevolucion = fechaDevolucion;

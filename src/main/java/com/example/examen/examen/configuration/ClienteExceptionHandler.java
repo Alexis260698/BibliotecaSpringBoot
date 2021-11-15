@@ -1,8 +1,8 @@
 package com.example.examen.examen.configuration;
 
-import com.example.examen.examen.Exceptions.ClienteExistenteException;
-import com.example.examen.examen.Exceptions.ClienteInexistenteException;
-import com.example.examen.examen.Exceptions.ClienteVacioException;
+import com.example.examen.examen.Exceptions.ClienteExceptions.ClienteExistenteException;
+import com.example.examen.examen.Exceptions.ClienteExceptions.ClienteInexistenteException;
+import com.example.examen.examen.Exceptions.ClienteExceptions.ClienteVacioException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
